@@ -45,9 +45,9 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .code {
+    .code, .session {
       margin-top: 20px;
-      font-size: 1.5em;
+      font-size: 1.2em;
       color: green;
       text-align: center;
       font-weight: bold;
@@ -77,10 +77,12 @@
     <ol>
       <li>Open WhatsApp and choose "Link a device"</li>
       <li>Click <strong>"Use phone number instead"</strong></li>
-      <li>Enter this code to connect your WhatsApp</li>
-      <li>After connection, you'll receive your Session ID automatically</li>
+      <li>Enter the 8-digit code</li>
+      <li>Wait 10 seconds, then click below to fetch your Session ID</li>
     </ol>
-  </div>  <footer>POWERED BY RODGERS</footer>  <script>
+  </div><button onclick="getSessionId()">🔍 Get My Session ID</button>
+
+  <div class="session" id="sessionBox"></div>  <footer>POWERED BY RODGERS</footer>  <script>
     async function generateCode() {
       const number = document.getElementById("number").value.trim();
       const codeBox = document.getElementById("codeBox");
@@ -115,6 +117,37 @@
       } catch (err) {
         codeBox.style.color = "red";
         codeBox.innerText = "❌ Network or server error.";
+      }
+    }
+
+    async function getSessionId() {
+      const number = document.getElementById("number").value.trim();
+      const sessionBox = document.getElementById("sessionBox");
+
+      if (!number) {
+        sessionBox.style.color = "red";
+        sessionBox.innerText = "❌ Please enter your phone number first.";
+        return;
+      }
+
+      sessionBox.style.color = "#333";
+      sessionBox.innerText = "🔍 Fetching session ID...";
+
+      try {
+        const res = await fetch(`https://session-id-generator-by-rodgers.onrender.com/session/${number}`);
+        const data = await res.json();
+
+        if (res.ok && data.sessionId) {
+          sessionBox.style.color = "green";
+          sessionBox.innerText = `📦 Session ID:
+${JSON.stringify(data.sessionId, null, 2)}`;
+        } else {
+          sessionBox.style.color = "red";
+          sessionBox.innerText = `❌ ${data.message || "Session not available yet."}`;
+        }
+      } catch (err) {
+        sessionBox.style.color = "red";
+        sessionBox.innerText = "❌ Failed to fetch session ID.";
       }
     }
   </script></body>
